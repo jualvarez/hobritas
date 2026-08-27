@@ -1,12 +1,12 @@
 from datetime import UTC, datetime, timedelta
 
-from palita_api.models import AuditLog, User, WorkRecord
+from hobritas_api.models import AuditLog, User, WorkRecord
 from tests.conftest import login
 
 
 def test_foreman_only_sees_assigned_site_and_workers(seeded):
     client, _, ids, _ = seeded
-    login(client, "jefe_demo", "jefe-pass")
+    login(client, "foreman_demo", "foreman-pass")
     sites = client.get("/api/v1/sites")
     workers = client.get("/api/v1/workers")
     assert sites.status_code == 200
@@ -19,7 +19,7 @@ def test_admin_sees_all_sites(seeded):
     login(client, "admin_demo", "admin-pass")
     response = client.get("/api/v1/sites")
     assert response.status_code == 200
-    assert {site["name"] for site in response.json()} == {"Obra Norte", "Obra Sur"}
+    assert {site["name"] for site in response.json()} == {"North Site", "South Site"}
 
 
 def test_records_can_be_filtered_by_site_and_worker(seeded):
@@ -65,14 +65,14 @@ def test_record_datetimes_are_normalized_to_utc_before_storage(seeded):
 
 def test_foreman_can_edit_previous_week_but_not_older_records(seeded):
     client, _, ids, _ = seeded
-    login(client, "jefe_demo", "jefe-pass")
+    login(client, "foreman_demo", "foreman-pass")
     allowed = client.patch(
         f"/api/v1/records/{ids['previous_record']}",
-        json={"early_exit_reason": "Motivo de prueba"},
+        json={"early_exit_reason": "Test reason"},
     )
     denied = client.patch(
         f"/api/v1/records/{ids['old_record']}",
-        json={"early_exit_reason": "No permitido"},
+        json={"early_exit_reason": "Not allowed"},
     )
     assert allowed.status_code == 200
     assert denied.status_code == 403
@@ -80,10 +80,10 @@ def test_foreman_can_edit_previous_week_but_not_older_records(seeded):
 
 def test_foreman_cannot_access_another_site_record(seeded):
     client, _, ids, _ = seeded
-    login(client, "jefe_demo", "jefe-pass")
+    login(client, "foreman_demo", "foreman-pass")
     response = client.patch(
         f"/api/v1/records/{ids['south_record']}",
-        json={"early_exit_reason": "No permitido"},
+        json={"early_exit_reason": "Not allowed"},
     )
     assert response.status_code == 404
 
@@ -91,7 +91,7 @@ def test_foreman_cannot_access_another_site_record(seeded):
 def test_close_shift_only_closes_open_records_from_the_foreman_site(seeded):
     client, app, ids, _ = seeded
     with app.state.session_factory() as db:
-        foreman = db.query(User).filter_by(username="jefe_demo").one()
+        foreman = db.query(User).filter_by(username="foreman_demo").one()
         admin = db.query(User).filter_by(username="admin_demo").one()
         north_open = WorkRecord(
             worker_id=ids["worker_north"],
@@ -110,7 +110,7 @@ def test_close_shift_only_closes_open_records_from_the_foreman_site(seeded):
         north_open_id = north_open.id
         south_open_id = south_open.id
 
-    login(client, "jefe_demo", "jefe-pass")
+    login(client, "foreman_demo", "foreman-pass")
     denied = client.post(f"/api/v1/sites/{ids['south']}/close-open-records")
     closed = client.post(f"/api/v1/sites/{ids['north']}/close-open-records")
 

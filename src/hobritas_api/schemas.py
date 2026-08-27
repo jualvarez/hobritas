@@ -10,7 +10,7 @@ from pydantic import (
     model_validator,
 )
 
-from palita_api.models import UserRole
+from hobritas_api.models import UserRole
 
 Username = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=80)]
 Password = Annotated[str, StringConstraints(min_length=8, max_length=1024)]
@@ -87,7 +87,7 @@ class PersonCreate(BaseModel):
     @model_validator(mode="after")
     def credentials_for_access(self):
         if self.access_enabled and not (self.username and self.role and self.password):
-            raise ValueError("Usuario, perfil y contraseña son obligatorios para habilitar el acceso")
+            raise ValueError("Username, role, and password are required to enable access")
         return self
 
 
@@ -122,7 +122,7 @@ class RecordCreate(BaseModel):
     @classmethod
     def aware_datetime(cls, value: datetime | None):
         if value is not None and value.tzinfo is None:
-            raise ValueError("La fecha y hora debe incluir zona horaria")
+            raise ValueError("The date and time must include a timezone")
         return value
 
 
@@ -137,13 +137,13 @@ class RecordUpdate(BaseModel):
     @classmethod
     def aware_datetime(cls, value: datetime | None):
         if value is not None and value.tzinfo is None:
-            raise ValueError("La fecha y hora debe incluir zona horaria")
+            raise ValueError("The date and time must include a timezone")
         return value
 
     @model_validator(mode="after")
     def entry_cannot_be_cleared(self):
         if "entry_at" in self.model_fields_set and self.entry_at is None:
-            raise ValueError("La fecha y hora de ingreso no puede quedar vacía")
+            raise ValueError("The entry date and time cannot be empty")
         return self
 
 

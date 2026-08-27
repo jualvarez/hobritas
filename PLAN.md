@@ -1,88 +1,88 @@
-# Sistema de registro de trabajo y pagos
+# Work and payment tracking system
 
-## Estado
+## Status
 
-Primera implementación en curso.
+Initial implementation in progress.
 
 ## Milestone 1
 
-Sistema de registro de pagos.
+Payment tracking system.
 
-la persona administradora cargará los datos enviados por los trabajadores mediante una interfaz web responsive.
+The administrator will enter data submitted by workers through a responsive web interface.
 
-## Formas de carga
+## Input methods
 
-- Carga manual de entradas y salidas.
-- Pegado de conversaciones para que Coddy intente identificar quién, cuándo y dónde.
-- API documentada para crear y modificar registros desde Coddy u otros agentes.
+- Manual entry and exit recording.
+- Pasted conversations from which Coddy can try to identify who, when, and where.
+- A documented API for Coddy and other agents to create and modify records.
 
-## Decisiones de diseño
+## Design decisions
 
-- La carga manual será simple y mostrará el último registro de la persona.
-- Habrá alertas por horarios solapados entre obras y por entradas sin salida al finalizar el día.
-- Las alertas mostrarán el detalle de los registros que requieren atención.
-- Las alertas por falta de salida serán visibles únicamente para administración.
-- Las alertas no impedirán guardar el registro.
-- Los registros interpretados por Coddy serán borradores que la persona administradora deberá revisar y confirmar.
-- La interfaz web, Coddy y otros agentes utilizarán la misma API.
-- La API se documentará con OpenAPI y aplicará las mismas validaciones y alertas que la interfaz web.
-- Cada registro mostrará las horas trabajadas.
-- Se podrá navegar por días anteriores.
-- Los resúmenes podrán agruparse por persona o por obra.
-- Los resúmenes agrupados podrán expandirse para mostrar el detalle por obra o persona.
-- Una jornada de trabajo equivaldrá a 8 horas.
-- La semana comenzará el domingo y terminará al comenzar el domingo siguiente.
-- El jefe de cuadrilla verá las personas asignadas a su obra.
-- El primer toque registrará el ingreso con la hora actual y mostrará la persona en verde.
-- El segundo toque registrará la salida con la hora actual.
-- El toque siguiente creará un nuevo registro para la misma persona y obra.
-- Cada persona mostrará todos sus registros y el total de horas.
-- Cada registro podrá editarse y borrarse individualmente.
-- Las horas de ingreso y salida podrán editarse.
-- La salida podrá incluir un motivo opcional.
-- El jefe de cuadrilla podrá cerrar todos los turnos abiertos de su obra con la hora actual.
+- Manual entry will be simple and show the worker's latest record.
+- Alerts will flag overlapping schedules across sites and entries without an exit at the end of the day.
+- Alerts will show the records that require attention.
+- Missing-exit alerts will be visible only to administrators.
+- Alerts will not prevent saving a record.
+- Records interpreted by Coddy will be drafts that an administrator must review and confirm.
+- The web interface, Coddy, and other agents will use the same API.
+- The API will use OpenAPI and apply the same validations and alerts as the web interface.
+- Each record will show the hours worked.
+- Users will be able to navigate to previous days.
+- Summaries can be grouped by worker or site.
+- Grouped summaries can expand to show details by site or worker.
+- One workday equals 8 hours.
+- The week starts on Sunday and ends at the start of the following Sunday.
+- A foreman will see workers assigned to their site.
+- The first tap records entry at the current time and displays the worker in green.
+- The second tap records exit at the current time.
+- The next tap creates another record for the same worker and site.
+- Each worker will show all records and total hours.
+- Each record can be edited and deleted individually.
+- Entry and exit times can be edited.
+- An exit may include an optional reason.
+- A foreman can close every open shift at their site using the current time.
 
-## Perfiles
+## Profiles
 
-### Jefe de cuadrilla
+### Foreman
 
-- Tendrá una obra asignada y verá sus personas.
-- Usará una interfaz mobile similar a la iteración 3.
-- Podrá ver el resumen semanal de su obra y navegar hacia atrás.
-- Podrá corregir registros hasta una semana hacia atrás.
+- Has one assigned site and can see its workers.
+- Uses a mobile-friendly shift entry interface.
+- Can view the site's weekly summary and navigate backward.
+- Can correct records up to one week back.
 
-### Administrador
+### Administrator
 
-- Verá todas las obras.
-- Usará una interfaz similar a la iteración 2, sin el panel de carga.
-- Podrá alternar entre resúmenes diarios y semanales.
-- Podrá consultar resúmenes agrupados por obra o persona.
-- Podrá abrir un registro en un modal para corregirlo.
-- Podrá crear e inactivar personas.
-- Podrá asignar una persona a una o más obras.
-- Podrá asignarle opcionalmente usuario, contraseña y perfil.
-- Podrá crear y renombrar obras, y gestionar sus personas activas.
-- Podrá ver quién creó cada registro y su historial de cambios.
+- Can see every site.
+- Uses summary and management views without the foreman shift-entry panel.
+- Can switch between daily and weekly summaries.
+- Can group summaries by site or worker.
+- Can open a record in a modal to correct it.
+- Can create and deactivate workers.
+- Can assign a worker to one or more sites.
+- Can optionally assign a username, password, and role.
+- Can create and rename sites and manage their active workers.
+- Can see who created each record and its change history.
 
-### Acceso
+### Access
 
-- El sistema tendrá login.
-- La interfaz y los permisos dependerán del perfil.
-- Los permisos también se aplicarán en la API.
-- Los usuarios y contraseñas podrán definirse desde la administración o mediante comandos administrativos.
-- No habrá recupero de contraseña inicialmente.
-- La web usará sesiones y los agentes usarán tokens revocables.
+- The system requires login.
+- The interface and permissions depend on the user's role.
+- API endpoints enforce the same permissions.
+- Users and passwords can be managed in the administration interface or through administrative commands.
+- Password recovery is not implemented initially.
+- The web uses sessions; agents use revocable tokens.
 
-## Implementación
+## Implementation
 
-- Backend con FastAPI, SQLAlchemy, Alembic y pytest.
-- Base de datos SQLite.
-- API versionada bajo `/api/v1` y documentada con OpenAPI.
-- Zona horaria configurable, con `America/Argentina/Buenos_Aires` por defecto.
-- Correcciones auditadas y borrado lógico.
+- FastAPI, SQLAlchemy, Alembic, and pytest backend.
+- SQLite database.
+- Versioned `/api/v1` API documented with OpenAPI.
+- Configurable timezone, defaulting to `America/Argentina/Buenos_Aires`.
+- Audited corrections and soft deletion.
 
-## Problemas actuales
+## Current problems
 
-- La información se envía sin una estructura definida.
-- Faltan datos que luego hay que reclamar.
-- Surgen reclamos posteriores por datos registrados incorrectamente.
+- Information is submitted without a defined structure.
+- Missing data must be requested later.
+- Incorrectly recorded data leads to later claims.

@@ -4,7 +4,7 @@ def test_frontend_is_served_at_root(seeded):
     response = client.get("/")
 
     assert response.status_code == 200
-    assert "Registro de trabajo" in response.text
+    assert "Work log" in response.text
     assert 'src="/static/app.js"' in response.text
 
 
@@ -33,9 +33,9 @@ def test_alerts_are_actionable_and_foreman_can_close_shift(seeded):
 
     javascript = client.get("/static/app.js").text
 
-    assert "Registros a revisar" in javascript
+    assert "Records to review" in javascript
     assert "data-show-alerts" in javascript
-    assert "Cerrar turno" in javascript
+    assert "Close shift" in javascript
     assert "close-open-records" in javascript
     assert "includeOpen: state.user.role === \"admin\"" in javascript
 
@@ -45,10 +45,10 @@ def test_admin_has_people_management_and_day_week_navigation(seeded):
 
     javascript = client.get("/static/app.js").text
 
-    assert "Asignaciones y acceso al sistema" in javascript
-    assert "Agregar persona" in javascript
-    assert "Nueva contraseña (opcional)" in javascript
-    assert "Persona activa" in javascript
+    assert "Assignments and system access" in javascript
+    assert "Add worker" in javascript
+    assert "New password (optional)" in javascript
+    assert "Active worker" in javascript
     assert 'data-view="day"' in javascript
     assert 'data-view="week"' in javascript
 
@@ -58,9 +58,9 @@ def test_admin_has_record_timeline_and_site_management(seeded):
 
     javascript = client.get("/static/app.js").text
 
-    assert "Historial del registro" in javascript
+    assert "Record history" in javascript
     assert "/history" in javascript
     assert 'data-admin-section="sites"' in javascript
-    assert "Agregar obra" in javascript
-    assert "Personas activas en la obra" in javascript
-    assert "Agregar persona a la obra" in javascript
+    assert "Add site" in javascript
+    assert "Active workers at this site" in javascript
+    assert "Add worker to site" in javascript

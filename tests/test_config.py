@@ -1,4 +1,4 @@
-from palita_api.config import Settings
+from hobritas_api.config import Settings
 
 
 def test_argentina_is_the_default_timezone(monkeypatch):

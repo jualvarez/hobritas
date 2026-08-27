@@ -11,7 +11,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    database_url: str = "sqlite:///./data/palita.db"
+    database_url: str = "sqlite:///./data/hobritas.db"
     timezone: str = "America/Argentina/Buenos_Aires"
     session_secret: SecretStr
     session_hours: int = 12
@@ -27,5 +27,5 @@ class Settings(BaseSettings):
         try:
             ZoneInfo(value)
         except ZoneInfoNotFoundError as error:
-            raise ValueError("Zona horaria inválida") from error
+            raise ValueError("Invalid timezone") from error
         return value

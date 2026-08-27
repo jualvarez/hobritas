@@ -1,4 +1,4 @@
-"""Acceso opcional de personas.
+"""Optional worker access.
 
 Revision ID: 0002
 """

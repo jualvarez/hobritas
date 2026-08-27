@@ -8,7 +8,7 @@ def test_admin_can_manage_person_with_optional_access_and_multiple_sites(seeded)
     created = client.post(
         "/api/v1/admin/people",
         json={
-            "name": "Persona Tres",
+            "name": "Worker Three",
             "active": True,
             "site_ids": [ids["north"], ids["south"]],
             "access_enabled": False,
@@ -26,18 +26,18 @@ def test_admin_can_manage_person_with_optional_access_and_multiple_sites(seeded)
         f"/api/v1/admin/people/{person_id}",
         json={
             "access_enabled": True,
-            "username": "persona_tres",
+            "username": "worker_three",
             "role": "foreman",
-            "password": "clave-inicial",
+            "password": "initial-password",
         },
     )
     assert enabled.status_code == 200
-    assert enabled.json()["username"] == "persona_tres"
+    assert enabled.json()["username"] == "worker_three"
     assert enabled.json()["role"] == "foreman"
     assert "password" not in enabled.json()
 
     client.post("/api/v1/auth/logout")
-    login(client, "persona_tres", "clave-inicial")
+    login(client, "worker_three", "initial-password")
     assert {site["id"] for site in client.get("/api/v1/sites").json()} == {ids["north"], ids["south"]}
 
 
@@ -47,13 +47,13 @@ def test_inactive_person_cannot_log_in_and_foreman_cannot_manage_people(seeded):
     created = client.post(
         "/api/v1/admin/people",
         json={
-            "name": "Persona Tres",
+            "name": "Worker Three",
             "active": True,
             "site_ids": [ids["north"]],
             "access_enabled": True,
-            "username": "persona_tres",
+            "username": "worker_three",
             "role": "foreman",
-            "password": "clave-inicial",
+            "password": "initial-password",
         },
     ).json()
     client.patch(f"/api/v1/admin/people/{created['id']}", json={"active": False})
@@ -61,11 +61,11 @@ def test_inactive_person_cannot_log_in_and_foreman_cannot_manage_people(seeded):
 
     denied_login = client.post(
         "/api/v1/auth/login",
-        json={"username": "persona_tres", "password": "clave-inicial"},
+        json={"username": "worker_three", "password": "initial-password"},
     )
     assert denied_login.status_code == 401
 
-    login(client, "jefe_demo", "jefe-pass")
+    login(client, "foreman_demo", "foreman-pass")
     assert client.get("/api/v1/admin/people").status_code == 403
 
 
@@ -76,7 +76,7 @@ def test_enabling_new_access_requires_credentials(seeded):
     response = client.post(
         "/api/v1/admin/people",
         json={
-            "name": "Persona Tres",
+            "name": "Worker Three",
             "site_ids": [ids["north"]],
             "access_enabled": True,
         },
@@ -92,23 +92,23 @@ def test_access_rejects_blank_username_and_short_password(seeded):
     blank_username = client.post(
         "/api/v1/admin/people",
         json={
-            "name": "Persona Tres",
+            "name": "Worker Three",
             "site_ids": [ids["north"]],
             "access_enabled": True,
             "username": "   ",
             "role": "foreman",
-            "password": "clave-inicial",
+            "password": "initial-password",
         },
     )
     short_password = client.post(
         "/api/v1/admin/people",
         json={
-            "name": "Persona Cuatro",
+            "name": "Worker Four",
             "site_ids": [ids["north"]],
             "access_enabled": True,
-            "username": "persona_cuatro",
+            "username": "worker_four",
             "role": "foreman",
-            "password": "corta",
+            "password": "short",
         },
     )
 

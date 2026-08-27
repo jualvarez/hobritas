@@ -4,10 +4,10 @@ from zoneinfo import ZoneInfo
 import pytest
 from fastapi.testclient import TestClient
 
-from palita_api.app import create_app
-from palita_api.config import Settings
-from palita_api.models import ApiToken, Site, User, UserRole, Worker, WorkRecord
-from palita_api.security import hash_password, hash_token
+from hobritas_api.app import create_app
+from hobritas_api.config import Settings
+from hobritas_api.models import ApiToken, Site, User, UserRole, Worker, WorkRecord
+from hobritas_api.security import hash_password, hash_token
 
 
 @pytest.fixture
@@ -30,8 +30,8 @@ def app(settings):
 def seeded(app, settings):
     with TestClient(app) as client:
         with app.state.session_factory() as db:
-            north = Site(name="Obra Norte")
-            south = Site(name="Obra Sur")
+            north = Site(name="North Site")
+            south = Site(name="South Site")
             db.add_all([north, south])
             db.flush()
 
@@ -41,13 +41,13 @@ def seeded(app, settings):
                 role=UserRole.ADMIN,
             )
             foreman = User(
-                username="jefe_demo",
-                password_hash=hash_password("jefe-pass"),
+                username="foreman_demo",
+                password_hash=hash_password("foreman-pass"),
                 role=UserRole.FOREMAN,
                 site_id=north.id,
             )
-            worker_north = Worker(name="Persona Uno")
-            worker_south = Worker(name="Persona Dos")
+            worker_north = Worker(name="Worker One")
+            worker_south = Worker(name="Worker Two")
             worker_north.sites.append(north)
             worker_south.sites.append(south)
             db.add_all([admin, foreman, worker_north, worker_south])

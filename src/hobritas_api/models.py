@@ -7,7 +7,7 @@ from sqlalchemy import Column, DateTime, ForeignKey, String, Table, Text
 from sqlalchemy import Enum as SqlEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from palita_api.database import Base
+from hobritas_api.database import Base
 
 
 def utc_now() -> datetime:

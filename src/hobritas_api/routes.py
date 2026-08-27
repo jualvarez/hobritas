@@ -5,7 +5,7 @@ from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from palita_api.dependencies import (
+from hobritas_api.dependencies import (
     foreman_can_correct,
     get_current_user,
     get_db,
@@ -13,7 +13,7 @@ from palita_api.dependencies import (
     require_admin,
     user_site_ids,
 )
-from palita_api.models import (
+from hobritas_api.models import (
     AuditLog,
     Site,
     User,
@@ -23,7 +23,7 @@ from palita_api.models import (
     WorkRecord,
     worker_sites,
 )
-from palita_api.schemas import (
+from hobritas_api.schemas import (
     AdminSiteRead,
     AppSettingsRead,
     AuditEntryRead,
@@ -39,7 +39,7 @@ from palita_api.schemas import (
     UserRead,
     WorkerRead,
 )
-from palita_api.security import (
+from hobritas_api.security import (
     hash_password,
     hash_token,
     new_token,
@@ -83,7 +83,7 @@ def get_visible_record(db: Session, record_id: int, user: User) -> WorkRecord:
         query = query.where(WorkRecord.site_id.in_(allowed_sites))
     record = db.scalar(query)
     if not record:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Registro inexistente")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Record does not exist")
     return record
 
 
@@ -100,7 +100,7 @@ def validate_assignment(db: Session, worker_id: int, site_id: int) -> None:
     if not worker_belongs_to_site(db, worker_id, site_id):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="La persona no está asignada a la obra",
+            detail="Worker is not assigned to the site",
         )
 
 
@@ -108,7 +108,7 @@ def validate_times(entry_at: datetime, exit_at: datetime | None) -> None:
     if exit_at is not None and normalize_utc(exit_at) <= normalize_utc(entry_at):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="La salida debe ser posterior al ingreso",
+            detail="Exit time must be after entry time",
         )
 
 
@@ -116,7 +116,7 @@ def resolve_sites(db: Session, site_ids: list[int]) -> list[Site]:
     unique_ids = list(dict.fromkeys(site_ids))
     sites = list(db.scalars(select(Site).where(Site.id.in_(unique_ids)).order_by(Site.id)))
     if len(sites) != len(unique_ids):
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Una obra no existe")
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="A site does not exist")
     return sites
 
 
@@ -135,26 +135,26 @@ def serialize_person(worker: Worker) -> PersonRead:
 def ensure_username_available(db: Session, username: str, current_user_id: int | None = None) -> None:
     existing = db.scalar(select(User).where(User.username == username))
     if existing and existing.id != current_user_id:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="El usuario ya existe")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User already exists")
 
 
 def clean_site_name(name: str) -> str:
     value = name.strip()
     if not value:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="El nombre es obligatorio")
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Name is required")
     return value
 
 
 def ensure_site_name_available(db: Session, name: str, current_site_id: int | None = None) -> None:
     existing = db.scalar(select(Site).where(Site.name == name))
     if existing and existing.id != current_site_id:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="La obra ya existe")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Site already exists")
 
 
 def get_admin_site(db: Session, site_id: int) -> Site:
     site = db.get(Site, site_id)
     if not site:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Obra inexistente")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Site does not exist")
     return site
 
 
@@ -172,14 +172,14 @@ def login(payload: LoginRequest, request: Request, response: Response, db: Sessi
     if limiter.is_blocked(limiter_key, settings.login_max_attempts, settings.login_window_seconds):
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="Demasiados intentos. Intentá nuevamente más tarde",
+            detail="Too many attempts. Try again later",
             headers={"Retry-After": str(settings.login_window_seconds)},
         )
 
     user = db.scalar(select(User).where(User.username == payload.username, User.active.is_(True)))
     if not verify_password_or_dummy(payload.password, user.password_hash if user else None) or not user:
         limiter.record_failure(limiter_key, settings.login_window_seconds)
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales inválidas")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     limiter.reset(limiter_key)
 
     raw_token = new_token()
@@ -247,7 +247,7 @@ def create_person(
         access_enabled=payload.access_enabled,
     )
     if not worker.name:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="El nombre es obligatorio")
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Name is required")
     db.add(worker)
     worker.sites = resolve_sites(db, payload.site_ids)
     if payload.access_enabled:
@@ -271,12 +271,12 @@ def update_person(
 ):
     worker = db.get(Worker, person_id)
     if not worker:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Persona inexistente")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Worker does not exist")
     changes = payload.model_dump(exclude_unset=True)
     if "name" in changes:
         worker.name = (changes["name"] or "").strip()
         if not worker.name:
-            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="El nombre es obligatorio")
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Name is required")
     if "site_ids" in changes:
         worker.sites = resolve_sites(db, changes["site_ids"] or [])
     if "active" in changes:
@@ -287,7 +287,7 @@ def update_person(
         if not (changes.get("username") and changes.get("role") and changes.get("password")):
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="Usuario, perfil y contraseña son obligatorios para habilitar el acceso",
+                detail="Username, role, and password are required to enable access",
             )
         ensure_username_available(db, changes["username"])
         worker.user = User(
@@ -352,9 +352,9 @@ def add_person_to_site(
     site = get_admin_site(db, site_id)
     person = db.get(Worker, person_id)
     if not person:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Persona inexistente")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Worker does not exist")
     if not person.active:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="La persona está inactiva")
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Worker is inactive")
     if person not in site.workers:
         site.workers.append(person)
         db.commit()
@@ -371,7 +371,7 @@ def remove_person_from_site(
     site = get_admin_site(db, site_id)
     person = db.get(Worker, person_id)
     if not person:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Persona inexistente")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Worker does not exist")
     if person in site.workers:
         site.workers.remove(person)
         db.commit()
@@ -386,7 +386,7 @@ def record_history(
 ):
     record = db.get(WorkRecord, record_id)
     if not record:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Registro inexistente")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Record does not exist")
     logs = list(
         db.scalars(
             select(AuditLog)
@@ -434,9 +434,9 @@ def close_open_records(
 ):
     allowed_sites = user_site_ids(user)
     if allowed_sites is not None and site_id not in allowed_sites:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Obra no permitida")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Site is not allowed")
     if not db.get(Site, site_id):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Obra inexistente")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Site does not exist")
 
     closed_at = datetime.now(UTC)
     records = list(
@@ -471,7 +471,7 @@ def list_workers(
     allowed_sites = user_site_ids(user)
     if allowed_sites is not None:
         if site_id is not None and site_id not in allowed_sites:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Obra no permitida")
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Site is not allowed")
         target_sites = {site_id} if site_id is not None else allowed_sites
         query = query.join(worker_sites).where(worker_sites.c.site_id.in_(target_sites))
     elif site_id is not None:
@@ -492,7 +492,7 @@ def list_records(
     allowed_sites = user_site_ids(user)
     if allowed_sites is not None:
         if site_id is not None and site_id not in allowed_sites:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Obra no permitida")
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Site is not allowed")
         query = query.where(WorkRecord.site_id.in_(allowed_sites))
     if site_id is not None:
         query = query.where(WorkRecord.site_id == site_id)
@@ -509,7 +509,7 @@ def list_records(
 def create_record(payload: RecordCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     allowed_sites = user_site_ids(user)
     if allowed_sites is not None and payload.site_id not in allowed_sites:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Obra no permitida")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Site is not allowed")
     validate_assignment(db, payload.worker_id, payload.site_id)
     validate_times(payload.entry_at, payload.exit_at)
     values = payload.model_dump()
@@ -534,7 +534,7 @@ def update_record(
 ):
     record = get_visible_record(db, record_id, user)
     if user.role == UserRole.FOREMAN and not foreman_can_correct(record, request.app.state.settings.timezone):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Período de corrección vencido")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Correction period has expired")
 
     before = record_snapshot(record)
     changes = payload.model_dump(exclude_unset=True)
@@ -545,7 +545,7 @@ def update_record(
     next_worker = changes.get("worker_id", record.worker_id)
     allowed_sites = user_site_ids(user)
     if allowed_sites is not None and next_site not in allowed_sites:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Obra no permitida")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Site is not allowed")
     validate_assignment(db, next_worker, next_site)
 
     for field, value in changes.items():
@@ -566,7 +566,7 @@ def delete_record(
 ):
     record = get_visible_record(db, record_id, user)
     if user.role == UserRole.FOREMAN and not foreman_can_correct(record, request.app.state.settings.timezone):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Período de corrección vencido")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Correction period has expired")
     before = record_snapshot(record)
     record.deleted_at = datetime.now(UTC)
     audit(db, user, "delete", record, before)

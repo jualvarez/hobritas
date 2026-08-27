@@ -29,7 +29,7 @@ def test_openapi_exposes_versioned_agent_endpoints(seeded):
     client, _, _, _ = seeded
     schema = client.get("/openapi.json")
     assert schema.status_code == 200
-    assert schema.json()["info"]["title"] == "Palita - Registro de trabajo"
+    assert schema.json()["info"]["title"] == "Hobritas - Work log"
     assert "/api/v1/auth/login" in schema.json()["paths"]
     assert "/api/v1/records" in schema.json()["paths"]
     assert "/api/v1/admin/people" in schema.json()["paths"]

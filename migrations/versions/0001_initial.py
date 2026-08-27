@@ -1,4 +1,4 @@
-"""Esquema inicial.
+"""Initial schema.
 
 Revision ID: 0001
 """

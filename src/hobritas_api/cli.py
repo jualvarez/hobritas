@@ -4,14 +4,14 @@ from datetime import UTC, datetime
 
 from sqlalchemy import select
 
-from palita_api.config import Settings
-from palita_api.database import create_database_engine, create_session_factory
-from palita_api.models import ApiToken, Site, User, UserRole, Worker
-from palita_api.security import hash_password, hash_token, new_token
+from hobritas_api.config import Settings
+from hobritas_api.database import create_database_engine, create_session_factory
+from hobritas_api.models import ApiToken, Site, User, UserRole, Worker
+from hobritas_api.security import hash_password, hash_token, new_token
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="palita-admin")
+    parser = argparse.ArgumentParser(prog="hobritas-admin")
     commands = parser.add_subparsers(dest="command", required=True)
 
     create_site = commands.add_parser("create-site")
@@ -40,16 +40,16 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def read_password() -> str:
-    first = getpass.getpass("Contraseña: ")
-    second = getpass.getpass("Repetir contraseña: ")
+    first = getpass.getpass("Password: ")
+    second = getpass.getpass("Repeat password: ")
     if first != second:
-        raise SystemExit("Las contraseñas no coinciden")
+        raise SystemExit("Passwords do not match")
     if not first:
-        raise SystemExit("La contraseña no puede estar vacía")
+        raise SystemExit("Password cannot be empty")
     if len(first) < 8:
-        raise SystemExit("La contraseña debe tener al menos 8 caracteres")
+        raise SystemExit("Password must contain at least 8 characters")
     if len(first) > 1024:
-        raise SystemExit("La contraseña es demasiado larga")
+        raise SystemExit("Password is too long")
     return first
 
 
@@ -63,29 +63,29 @@ def main() -> None:
             site = Site(name=args.name)
             db.add(site)
             db.commit()
-            print(f"Obra creada con id {site.id}")
+            print(f"Site created with ID {site.id}")
             return
 
         if args.command == "create-worker":
             site = db.get(Site, args.site_id)
             if not site:
-                raise SystemExit("La obra no existe")
+                raise SystemExit("Site does not exist")
             worker = Worker(name=args.name)
             worker.sites.append(site)
             db.add(worker)
             db.commit()
-            print(f"Persona creada con id {worker.id}")
+            print(f"Worker created with ID {worker.id}")
             return
 
         user = db.scalar(select(User).where(User.username == args.username))
         if args.command == "create-user":
             if user:
-                raise SystemExit("El usuario ya existe")
+                raise SystemExit("User already exists")
             role = UserRole(args.role)
             if role == UserRole.FOREMAN and not args.site_id:
-                raise SystemExit("El jefe de cuadrilla requiere --site-id")
+                raise SystemExit("A foreman requires --site-id")
             if args.site_id and not db.get(Site, args.site_id):
-                raise SystemExit("La obra no existe")
+                raise SystemExit("Site does not exist")
             user = User(
                 username=args.username,
                 password_hash=hash_password(read_password()),
@@ -94,15 +94,15 @@ def main() -> None:
             )
             db.add(user)
             db.commit()
-            print(f"Usuario creado con id {user.id}")
+            print(f"User created with ID {user.id}")
             return
 
         if not user:
-            raise SystemExit("El usuario no existe")
+            raise SystemExit("User does not exist")
         if args.command == "set-password":
             user.password_hash = hash_password(read_password())
             db.commit()
-            print("Contraseña actualizada")
+            print("Password updated")
             return
 
         if args.command == "create-token":
@@ -124,7 +124,7 @@ def main() -> None:
                 .limit(1)
             )
             if not token:
-                raise SystemExit("El token no existe o ya fue revocado")
+                raise SystemExit("Token does not exist or has already been revoked")
             token.revoked_at = datetime.now(UTC)
             db.commit()
-            print("Token revocado")
+            print("Token revoked")

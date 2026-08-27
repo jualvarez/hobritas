@@ -4,7 +4,7 @@ from sqlalchemy import Engine, create_engine, event
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-from palita_api.config import Settings
+from hobritas_api.config import Settings
 
 
 class Base(DeclarativeBase):

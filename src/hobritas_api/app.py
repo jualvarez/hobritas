@@ -5,10 +5,10 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from palita_api.config import Settings
-from palita_api.database import Base, create_database_engine, create_session_factory
-from palita_api.routes import router
-from palita_api.security import LoginAttemptLimiter
+from hobritas_api.config import Settings
+from hobritas_api.database import Base, create_database_engine, create_session_factory
+from hobritas_api.routes import router
+from hobritas_api.security import LoginAttemptLimiter
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -24,9 +24,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         engine.dispose()
 
     app = FastAPI(
-        title="Palita - Registro de trabajo",
+        title="Hobritas - Work log",
         version="0.1.0",
-        description="API para registrar jornadas y consultar resúmenes de trabajo.",
+        description="API for recording shifts and viewing work summaries.",
         lifespan=lifespan,
     )
     app.state.settings = resolved_settings

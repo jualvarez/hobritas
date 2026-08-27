@@ -3,7 +3,7 @@ requires = ["setuptools>=80"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "palita-registro-pagos"
+name = "hobritas-work-log"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
@@ -19,7 +19,7 @@ dependencies = [
 dev = ["httpx2>=2.12,<3", "pytest>=9.0.3,<10"]
 
 [project.scripts]
-palita-admin = "palita_api.cli:main"
+hobritas-admin = "hobritas_api.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

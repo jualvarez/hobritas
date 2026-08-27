@@ -4,8 +4,8 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-from palita_api import models  # noqa: F401
-from palita_api.database import Base
+from hobritas_api import models  # noqa: F401
+from hobritas_api.database import Base
 
 config = context.config
 if config.config_file_name:

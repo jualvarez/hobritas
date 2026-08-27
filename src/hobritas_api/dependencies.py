@@ -7,8 +7,8 @@ from fastapi.security import APIKeyCookie, HTTPAuthorizationCredentials, HTTPBea
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from palita_api.models import ApiToken, User, UserRole, WebSession, WorkRecord
-from palita_api.security import hash_token
+from hobritas_api.models import ApiToken, User, UserRole, WebSession, WorkRecord
+from hobritas_api.security import hash_token
 
 agent_token_scheme = HTTPBearer(auto_error=False, scheme_name="AgentToken")
 web_session_scheme = APIKeyCookie(name="session", auto_error=False, scheme_name="WebSession")
@@ -46,13 +46,13 @@ def get_current_user(
             user = web_session.user
 
     if not user or not user.active:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Autenticación requerida")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required")
     return user
 
 
 def require_admin(user: User = Depends(get_current_user)) -> User:
     if user.role != UserRole.ADMIN:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Permiso insuficiente")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
     return user
 
 

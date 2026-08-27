@@ -1,29 +1,31 @@
-# Instrucciones
+# Instructions
 
-- No escribir código sin autorización expresa de Juan.
-- Mantener todos los archivos Markdown minimalistas y concretos.
-- Registrar únicamente decisiones y problemas que hayan sido tratados.
-- No inventar ni anticipar problemas inexistentes.
-- Asumir que todo el repositorio será público.
-- No guardar registros identificables, claves ni secretos en archivos publicables.
-- Guardar toda configuración en `.env`.
-- Publicar únicamente `.env.template` con valores de ejemplo no sensibles.
-- Aplicar el gate `red/fix/green` en cada iteración: test que falla, corrección y suite completa en verde.
-- No cerrar una iteración con tests fallidos.
+- Do not write code without Juan's explicit authorization.
+- Keep all Markdown files minimal and concrete.
+- Record only decisions and problems that have been addressed.
+- Do not invent or anticipate nonexistent problems.
+- Assume the entire repository will be public.
+- Do not store identifiable records, keys, or secrets in publishable files.
+- Store all configuration in `.env`.
+- Publish only `.env.template` with non-sensitive example values.
+- Apply the `red/fix/green` gate in every iteration: failing test, fix, and full green suite.
+- Do not close an iteration with failing tests.
 
-# Decisiones
+# Decisions
 
-- la persona administradora cargará los datos enviados por los trabajadores.
-- La interfaz será web responsive.
-- la persona administradora podrá pegar una conversación para que Coddy intente identificar quién, cuándo y dónde.
-- Una API documentada permitirá crear y modificar registros desde Coddy u otros agentes.
-- Validar la interfaz mediante iteraciones rápidas y separadas.
-- Guardar cada prueba en `iteraciones/iteracion-N`.
-- Usar FastAPI, SQLAlchemy, Alembic y pytest para el backend.
-- Usar SQLite inicialmente.
-- Versionar la API bajo `/api/v1` y documentarla con OpenAPI.
-- Configurar la zona horaria mediante `.env`, con hora argentina por defecto.
-- Crear usuarios y contraseñas mediante comandos administrativos.
-- No implementar recupero de contraseña por ahora.
-- Usar sesiones web y tokens revocables para agentes.
-- Auditar correcciones y usar borrado lógico.
+- Perform all operations agentically and automatically.
+- Define clear deployment mechanisms in code. Infrastructure provider coupling is allowed when well isolated.
+- The administrator will enter data submitted by workers.
+- The interface will be responsive web UI.
+- The administrator may paste a conversation so Coddy can try to identify who, when, and where.
+- A documented API will allow Coddy and other agents to create and modify records.
+- Validate the interface through fast, separate iterations.
+- Save each prototype in `iterations/iteration-N`.
+- Use FastAPI, SQLAlchemy, Alembic, and pytest for the backend.
+- Use SQLite initially.
+- Version the API under `/api/v1` and document it with OpenAPI.
+- Configure the timezone through `.env`, defaulting to Argentina time.
+- Create users and passwords through administrative commands.
+- Do not implement password recovery yet.
+- Use web sessions and revocable tokens for agents.
+- Audit corrections and use soft deletion.
