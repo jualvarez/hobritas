@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Prototipo de asistencia para jefe de cuadrilla" />
+    <title>Personal de obra</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="site-header">
+        <h1 id="site-name"></h1>
+        <time id="current-date"></time>
+      </header>
+
+      <section aria-labelledby="crew-title">
+        <h2 id="crew-title">Personal de hoy</h2>
+        <p id="crew-summary" class="crew-summary" aria-live="polite"></p>
+        <ul id="crew-list" class="crew-list"></ul>
+      </section>
+    </main>
+
+    <p id="toast" class="toast" role="status" aria-live="polite"></p>
+
+    <dialog id="edit-dialog" class="edit-dialog">
+      <form id="edit-form" method="dialog">
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <h2 id="dialog-title"></h2>
+        <p class="dialog-help">Tocá un horario para editarlo.</p>
+        <div id="edit-records" class="edit-records"></div>
+
+        <button class="save-button" value="save" type="submit">Guardar cambios</button>
+        <button id="close-dialog" class="close-button" value="cancel" type="button">Cerrar</button>
+      </form>
+    </dialog>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>

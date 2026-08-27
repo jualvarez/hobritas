@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Prototipo de registro de entradas y salidas" />
+    <title>Registro de obra</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="header-inner">
+        <h1>Registro de obra</h1>
+        <time id="current-date"></time>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="entry-panel" aria-labelledby="entry-title">
+        <h2 id="entry-title">Nueva carga</h2>
+
+        <form id="entry-form">
+          <label>
+            <span>Persona</span>
+            <select id="person" name="person" required>
+              <option value="">Seleccionar persona</option>
+            </select>
+          </label>
+
+          <p id="last-record" class="last-record" aria-live="polite"></p>
+
+          <label>
+            <span>Obra</span>
+            <select id="site" name="site" required>
+              <option value="">Seleccionar obra</option>
+            </select>
+          </label>
+
+          <fieldset>
+            <legend>Tipo</legend>
+            <div class="segment-control">
+              <label>
+                <input type="radio" name="type" value="entrada" checked />
+                <span>Entrada</span>
+              </label>
+              <label>
+                <input type="radio" name="type" value="salida" />
+                <span>Salida</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="date-time-row">
+            <label>
+              <span>Fecha</span>
+              <input id="date" name="date" type="date" required />
+            </label>
+            <label>
+              <span>Hora</span>
+              <input id="time" name="time" type="time" required />
+            </label>
+          </div>
+
+          <button class="primary-button" type="submit">Guardar registro</button>
+          <p id="form-message" class="form-message" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="summary-panel" aria-labelledby="summary-title">
+        <div class="summary-heading">
+          <h2 id="summary-title">Resumen del día</h2>
+          <div id="alert-summary" class="alert-summary" aria-live="polite"></div>
+        </div>
+
+        <div class="records-frame">
+          <table>
+            <thead>
+              <tr>
+                <th>Persona</th>
+                <th>Obra</th>
+                <th>Entrada</th>
+                <th>Salida</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="records-body"></tbody>
+          </table>
+          <p id="empty-state" class="empty-state" hidden>No hay registros para esta fecha.</p>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>

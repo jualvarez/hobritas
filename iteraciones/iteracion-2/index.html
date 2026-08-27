@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Prototipo de registro de entradas y salidas" />
+    <title>Registro de obra</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="header-inner">
+        <h1>Registro de obra</h1>
+        <time id="current-date"></time>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="entry-panel" aria-labelledby="entry-title">
+        <h2 id="entry-title">Nueva carga</h2>
+
+        <form id="entry-form">
+          <label>
+            <span>Persona</span>
+            <select id="person" name="person" required>
+              <option value="">Seleccionar persona</option>
+            </select>
+          </label>
+
+          <p id="last-record" class="last-record" aria-live="polite"></p>
+
+          <label>
+            <span>Obra</span>
+            <select id="site" name="site" required>
+              <option value="">Seleccionar obra</option>
+            </select>
+          </label>
+
+          <fieldset>
+            <legend>Tipo</legend>
+            <div class="segment-control">
+              <label>
+                <input type="radio" name="type" value="entrada" checked />
+                <span>Entrada</span>
+              </label>
+              <label>
+                <input type="radio" name="type" value="salida" />
+                <span>Salida</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="date-time-row">
+            <label>
+              <span>Fecha</span>
+              <input id="date" name="date" type="date" required />
+            </label>
+            <label>
+              <span>Hora</span>
+              <input id="time" name="time" type="time" required />
+            </label>
+          </div>
+
+          <button class="primary-button" type="submit">Guardar registro</button>
+          <p id="form-message" class="form-message" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="summary-panel" aria-labelledby="summary-title">
+        <div class="summary-toolbar">
+          <div class="date-navigator" aria-label="Navegar por período">
+            <button id="previous-period" type="button" aria-label="Período anterior">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12.5 4.5-5 5 5 5" /></svg>
+            </button>
+            <span id="period-label"></span>
+            <button id="next-period" type="button" aria-label="Período siguiente">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7.5 4.5 5 5-5 5" /></svg>
+            </button>
+          </div>
+
+          <fieldset class="view-fieldset">
+            <legend>Período</legend>
+            <div class="view-switch period-switch">
+              <label><input type="radio" name="period" value="day" checked /><span>Día</span></label>
+              <label><input type="radio" name="period" value="week" /><span>Semana</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="view-fieldset">
+            <legend>Agrupar</legend>
+            <div class="view-switch grouping-switch">
+              <label><input type="radio" name="grouping" value="records" checked /><span>Registros</span></label>
+              <label><input type="radio" name="grouping" value="people" /><span>Personas</span></label>
+              <label><input type="radio" name="grouping" value="sites" /><span>Obras</span></label>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="summary-heading">
+          <h2 id="summary-title">Resumen del día</h2>
+          <div id="alert-summary" class="alert-summary" aria-live="polite"></div>
+        </div>
+
+        <div class="records-frame">
+          <table>
+            <thead id="records-head"></thead>
+            <tbody id="records-body"></tbody>
+          </table>
+          <p id="empty-state" class="empty-state" hidden>No hay registros para este período.</p>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>

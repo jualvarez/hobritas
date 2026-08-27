@@ -1,0 +1,46 @@
+{
+  "initialDate": "2026-08-23",
+  "people": [
+    { "id": "persona-uno", "name": "Persona Uno" },
+    { "id": "persona-dos", "name": "Persona Dos" },
+    { "id": "persona-tres", "name": "Persona Tres" }
+  ],
+  "sites": [
+    { "id": "obra-norte", "name": "Obra Norte" },
+    { "id": "obra-sur", "name": "Obra Sur" }
+  ],
+  "records": [
+    {
+      "id": "record-1",
+      "personId": "persona-uno",
+      "siteId": "obra-norte",
+      "date": "2026-08-23",
+      "entry": "08:00",
+      "exit": "12:30"
+    },
+    {
+      "id": "record-2",
+      "personId": "persona-dos",
+      "siteId": "obra-sur",
+      "date": "2026-08-23",
+      "entry": "08:15",
+      "exit": null
+    },
+    {
+      "id": "record-3",
+      "personId": "persona-tres",
+      "siteId": "obra-norte",
+      "date": "2026-08-23",
+      "entry": "07:45",
+      "exit": "12:00"
+    },
+    {
+      "id": "record-4",
+      "personId": "persona-tres",
+      "siteId": "obra-sur",
+      "date": "2026-08-23",
+      "entry": "09:00",
+      "exit": "13:00"
+    }
+  ]
+}
