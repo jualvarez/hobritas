@@ -1,3 +1,4 @@
+from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from pydantic import Field, field_validator
@@ -15,6 +16,7 @@ class Settings(BaseSettings):
     timezone: str = "America/Argentina/Buenos_Aires"
     base_path: str = ""
     version: str = "0.1.0"
+    web_dir: Path = Path(__file__).resolve().parents[2] / "web"
     session_hours: int = 12
     cookie_secure: bool = True
     workday_hours: int = 8

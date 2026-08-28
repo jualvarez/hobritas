@@ -1,6 +1,4 @@
 from contextlib import asynccontextmanager
-from pathlib import Path
-
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -36,7 +34,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.login_attempt_limiter = LoginAttemptLimiter()
     app.include_router(router)
 
-    web_dir = Path(__file__).resolve().parents[2] / "web"
+    web_dir = resolved_settings.web_dir
     app.mount("/static", StaticFiles(directory=web_dir / "static"), name="static")
 
     @app.get("/", include_in_schema=False)

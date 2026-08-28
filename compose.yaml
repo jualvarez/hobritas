@@ -7,6 +7,7 @@ services:
       APP_BASE_PATH: /hobritas
       APP_DATABASE_URL: sqlite:////data/hobritas.db
       APP_VERSION: ${FAMILIAPP_SOURCE_REVISION:-dev}
+      APP_WEB_DIR: /app/web
     volumes:
       - data:/data
     networks:
