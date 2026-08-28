@@ -35,3 +35,7 @@ cp .env.template .env
 ```bash
 .venv/bin/pytest
 ```
+
+## Deployment
+
+`familiapp.yaml` declares the application's minimal runtime contract. Deployment tooling and VPS configuration live outside this repository.
