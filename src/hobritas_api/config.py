@@ -14,7 +14,6 @@ class Settings(BaseSettings):
 
     database_url: str = "sqlite:///./data/hobritas.db"
     timezone: str = "America/Argentina/Buenos_Aires"
-    base_path: str = ""
     version: str = "0.1.0"
     web_dir: Path = Path(__file__).resolve().parents[2] / "web"
     session_hours: int = 12
@@ -31,13 +30,4 @@ class Settings(BaseSettings):
             ZoneInfo(value)
         except ZoneInfoNotFoundError as error:
             raise ValueError("Invalid timezone") from error
-        return value
-
-    @field_validator("base_path")
-    @classmethod
-    def valid_base_path(cls, value: str) -> str:
-        if value == "":
-            return value
-        if not value.startswith("/") or value.endswith("/"):
-            raise ValueError("Base path must start with '/' and must not end with '/'")
         return value

@@ -25,7 +25,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         title="Hobritas - Work log",
         version=resolved_settings.version,
         description="API for recording shifts and viewing work summaries.",
-        root_path=resolved_settings.base_path,
         lifespan=lifespan,
     )
     app.state.settings = resolved_settings

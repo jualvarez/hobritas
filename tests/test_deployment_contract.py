@@ -15,18 +15,18 @@ def test_application_does_not_require_an_unused_runtime_secret(tmp_path):
     assert settings.database_url.endswith("test.db")
 
 
-def test_application_supports_a_reverse_proxy_base_path(tmp_path):
+def test_application_uses_relative_assets_for_a_stripped_proxy_prefix(tmp_path):
     settings = Settings(
         database_url=f"sqlite:///{tmp_path / 'test.db'}",
-        base_path="/hobritas",
         testing=True,
     )
 
     app = create_app(settings)
 
-    assert app.root_path == "/hobritas"
+    assert app.root_path == ""
     with TestClient(app) as client:
         assert client.get("/healthz").json() == {"status": "ok", "version": "0.1.0"}
+        assert client.get("/static/app.js").status_code == 200
         index = client.get("/").text
         assert 'href="static/styles.css"' in index
         assert 'src="static/app.js"' in index
