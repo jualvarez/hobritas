@@ -1,6 +1,6 @@
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from pydantic import Field, SecretStr, field_validator
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -13,7 +13,8 @@ class Settings(BaseSettings):
 
     database_url: str = "sqlite:///./data/hobritas.db"
     timezone: str = "America/Argentina/Buenos_Aires"
-    session_secret: SecretStr
+    base_path: str = ""
+    version: str = "0.1.0"
     session_hours: int = 12
     cookie_secure: bool = True
     workday_hours: int = 8
@@ -28,4 +29,13 @@ class Settings(BaseSettings):
             ZoneInfo(value)
         except ZoneInfoNotFoundError as error:
             raise ValueError("Invalid timezone") from error
+        return value
+
+    @field_validator("base_path")
+    @classmethod
+    def valid_base_path(cls, value: str) -> str:
+        if value == "":
+            return value
+        if not value.startswith("/") or value.endswith("/"):
+            raise ValueError("Base path must start with '/' and must not end with '/'")
         return value

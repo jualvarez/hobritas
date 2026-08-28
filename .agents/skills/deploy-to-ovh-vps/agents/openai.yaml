@@ -1,4 +1,0 @@
-interface:
-  display_name: "Deploy to OVH VPS"
-  short_description: "Despliega apps con SQLite y secretos"
-  default_prompt: "Usa $deploy-to-ovh-vps para preparar y desplegar esta aplicación en el VPS configurado."

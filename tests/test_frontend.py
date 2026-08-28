@@ -5,7 +5,7 @@ def test_frontend_is_served_at_root(seeded):
 
     assert response.status_code == 200
     assert "Work log" in response.text
-    assert 'src="/static/app.js"' in response.text
+    assert 'src="static/app.js"' in response.text
 
 
 def test_frontend_assets_are_served(seeded):

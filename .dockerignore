@@ -1,0 +1,12 @@
+.env
+.git
+.pytest_cache
+.venv
+__pycache__
+*.db
+*.db-shm
+*.db-wal
+*.pyc
+*.sqlite
+*.sqlite3
+tests

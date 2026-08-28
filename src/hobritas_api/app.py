@@ -25,8 +25,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app = FastAPI(
         title="Hobritas - Work log",
-        version="0.1.0",
+        version=resolved_settings.version,
         description="API for recording shifts and viewing work summaries.",
+        root_path=resolved_settings.base_path,
         lifespan=lifespan,
     )
     app.state.settings = resolved_settings
@@ -42,8 +43,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def frontend():
         return FileResponse(web_dir / "index.html")
 
-    @app.get("/health", tags=["system"])
+    @app.get("/healthz", tags=["system"])
     def health():
-        return {"status": "ok"}
+        return {"status": "ok", "version": resolved_settings.version}
 
     return app

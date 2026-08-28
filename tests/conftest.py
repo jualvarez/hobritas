@@ -15,7 +15,6 @@ def settings(tmp_path):
     return Settings(
         database_url=f"sqlite:///{tmp_path / 'test.db'}",
         timezone="America/Argentina/Buenos_Aires",
-        session_secret="test-secret-not-for-production",
         session_hours=12,
         testing=True,
     )

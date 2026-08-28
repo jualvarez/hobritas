@@ -10,8 +10,6 @@ cp .env.template .env
 .venv/bin/uvicorn hobritas_api.app:create_app --factory
 ```
 
-Set a random secret in `.env` before starting the application.
-
 ## Administration
 
 ```bash

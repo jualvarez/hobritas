@@ -1,0 +1,27 @@
+services:
+  hobritas:
+    build: .
+    restart: unless-stopped
+    user: "65532:65532"
+    environment:
+      APP_BASE_PATH: /hobritas
+      APP_DATABASE_URL: sqlite:////data/hobritas.db
+      APP_VERSION: ${FAMILIAPP_SOURCE_REVISION:-dev}
+    volumes:
+      - data:/data
+    networks:
+      - edge
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 10s
+
+volumes:
+  data:
+    name: hobritas-data
+
+networks:
+  edge:
+    external: true

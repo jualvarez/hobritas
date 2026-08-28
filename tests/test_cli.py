@@ -21,7 +21,6 @@ def run_cli(monkeypatch, arguments, passwords=()):
 def test_system_admin_can_create_user_change_password_and_revoke_token(tmp_path, monkeypatch, capsys):
     database_url = f"sqlite:///{tmp_path / 'cli.db'}"
     monkeypatch.setenv("APP_DATABASE_URL", database_url)
-    monkeypatch.setenv("APP_SESSION_SECRET", "test-secret")
     config = Config("alembic.ini")
     config.set_main_option("sqlalchemy.url", database_url)
     command.upgrade(config, "head")

@@ -1,0 +1,8 @@
+version: 1
+name: Hobritas
+slug: hobritas
+compose: compose.yaml
+service: hobritas
+internal_port: 8080
+healthcheck: /healthz
+auto_update: true
