@@ -1,0 +1,4 @@
+interface:
+  display_name: "Deploy Hobritas to OVH VPS"
+  short_description: "Despliega Hobritas con SQLite y secretos"
+  default_prompt: "Usa $deploy-to-ovh-vps para preparar y desplegar Hobritas en el VPS OVH con SQLite y secretos runtime."
