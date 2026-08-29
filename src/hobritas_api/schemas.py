@@ -87,7 +87,7 @@ class PersonCreate(BaseModel):
     @model_validator(mode="after")
     def credentials_for_access(self):
         if self.access_enabled and not (self.username and self.role and self.password):
-            raise ValueError("Username, role, and password are required to enable access")
+            raise ValueError("El usuario, el rol y la contraseña son obligatorios para habilitar el acceso")
         return self
 
 

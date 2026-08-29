@@ -17,6 +17,7 @@
 - Define clear deployment mechanisms in code. Infrastructure provider coupling is allowed when well isolated.
 - The administrator will enter data submitted by workers.
 - The interface will be responsive web UI.
+- The web interface and user-facing messages will be in Spanish.
 - The administrator may paste a conversation so Coddy can try to identify who, when, and where.
 - A documented API will allow Coddy and other agents to create and modify records.
 - Validate the interface through fast, separate iterations.

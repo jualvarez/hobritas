@@ -209,7 +209,7 @@ h1, h2, h3, p { margin-top: 0; }
   .people-table { border: 0; background: transparent; overflow: visible; }
   .people-row { grid-template-columns: 1fr auto; gap: 11px 16px; margin-bottom: 12px; border: 1px solid var(--line); border-radius: 12px; padding: 16px; background: #fff; }
   .people-row > span:nth-child(1), .people-row > span:nth-child(2), .people-row > span:nth-child(3) { grid-column: 1 / -1; }
-  .people-row > span:nth-child(2)::before { content: "Sites: "; color: var(--muted); font-size: 13px; font-weight: 700; }
+  .people-row > span:nth-child(2)::before { content: "Obras: "; color: var(--muted); font-size: 13px; font-weight: 700; }
   .sites-head { display: none; }
   .sites-table { border: 0; background: transparent; overflow: visible; }
   .sites-row { grid-template-columns: 1fr auto; gap: 8px 14px; margin-bottom: 12px; border: 1px solid var(--line); border-radius: 12px; padding: 16px; background: #fff; }
