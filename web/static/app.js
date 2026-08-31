@@ -15,9 +15,11 @@ const state = {
   selectedSiteId: null,
   date: null,
   openGroup: null,
+  peopleSort: { key: "category", direction: "asc" },
 };
 
 const pad = (value) => String(value).padStart(2, "0");
+const textCollator = new Intl.Collator("es", { sensitivity: "base", numeric: true });
 const html = (value = "") => String(value).replace(/[&<>'"]/g, (char) => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;",
 }[char]));
@@ -356,17 +358,40 @@ function adminNavigation() {
   return `<nav class="admin-navigation" aria-label="Administración"><button data-admin-section="summary" class="${state.adminSection === "summary" ? "active" : ""}">Resumen</button><button data-admin-section="people" class="${state.adminSection === "people" ? "active" : ""}">Trabajadores</button><button data-admin-section="sites" class="${state.adminSection === "sites" ? "active" : ""}">Obras</button></nav>`;
 }
 
+function personSites(person) {
+  return person.site_ids.map(siteName).sort(textCollator.compare).join(", ") || "Sin obra";
+}
+
+function peopleSortValue(person, key) {
+  if (key === "category") return person.category || "\uffff";
+  if (key === "sites") return personSites(person);
+  if (key === "access") return person.access_enabled ? `${person.role === "admin" ? "Administrador" : "Encargado"} ${person.username}` : "Sin acceso";
+  if (key === "active") return person.active ? "Activo" : "Inactivo";
+  return person.name;
+}
+
+function peopleSortHeader(key, label) {
+  const active = state.peopleSort.key === key;
+  const direction = active ? state.peopleSort.direction : null;
+  const arrow = direction === "asc" ? "↑" : direction === "desc" ? "↓" : "↕";
+  return `<button class="people-sort ${active ? "active" : ""}" data-sort-people="${key}" aria-label="Ordenar por ${html(label)}">${html(label)} <span aria-hidden="true">${arrow}</span></button>`;
+}
+
 function renderPeople() {
-  const groupedPeople = Map.groupBy(state.people, workerCategory);
-  const rows = [...groupedPeople].map(([category, people]) => {
-    const items = people.map((person) => {
-      const sites = person.site_ids.map(siteName).join(", ") || "Sin obra";
-      const access = person.access_enabled ? `${person.role === "admin" ? "Administrador" : "Encargado"}<br><span>${html(person.username)}</span>` : "Sin acceso";
-      return `<div class="people-row"><strong>${html(person.name)}</strong><span>${html(sites)}</span><span>${access}</span><span class="person-status ${person.active ? "active" : "inactive"}">${person.active ? "Activo" : "Inactivo"}</span><button class="secondary" data-edit-person="${person.id}">Editar</button></div>`;
-    }).join("");
-    return `<div class="people-category">${html(category)}</div>${items}`;
+  const direction = state.peopleSort.direction === "asc" ? 1 : -1;
+  const people = [...state.people].sort((left, right) => {
+    const compared = textCollator.compare(
+      peopleSortValue(left, state.peopleSort.key),
+      peopleSortValue(right, state.peopleSort.key),
+    );
+    return (compared * direction) || textCollator.compare(left.name, right.name) || left.id - right.id;
+  });
+  const rows = people.map((person) => {
+    const sites = personSites(person);
+    const access = person.access_enabled ? `${person.role === "admin" ? "Administrador" : "Encargado"}<br><span>${html(person.username)}</span>` : "Sin acceso";
+    return `<div class="people-row"><strong>${html(person.name)}</strong><span class="person-category-cell">${html(workerCategory(person))}</span><span class="person-sites">${html(sites)}</span><span class="person-access">${access}</span><span class="person-status ${person.active ? "active" : "inactive"}">${person.active ? "Activo" : "Inactivo"}</span><button class="secondary" data-edit-person="${person.id}">Editar</button></div>`;
   }).join("");
-  root.innerHTML = `${header()}<main class="page">${adminNavigation()}<div class="page-title-row"><div><h1>Trabajadores</h1><p class="muted">Asignaciones y acceso al sistema</p></div><button class="primary" id="add-person">Agregar trabajador</button></div><section class="people-table"><div class="people-head"><span>Trabajador</span><span>Obras</span><span>Acceso</span><span>Estado</span><span></span></div>${rows || '<div class="empty">No se agregaron trabajadores.</div>'}</section></main>`;
+  root.innerHTML = `${header()}<main class="page">${adminNavigation()}<div class="page-title-row"><div><h1>Trabajadores</h1><p class="muted">Asignaciones y acceso al sistema</p></div><button class="primary" id="add-person">Agregar trabajador</button></div><section class="people-table"><div class="people-head">${peopleSortHeader("name", "Trabajador")}${peopleSortHeader("category", "Categoría")}${peopleSortHeader("sites", "Obras")}${peopleSortHeader("access", "Acceso")}${peopleSortHeader("active", "Estado")}<span></span></div>${rows || '<div class="empty">No se agregaron trabajadores.</div>'}</section></main>`;
   bindCommon();
 }
 
@@ -424,6 +449,14 @@ function bindCommon() {
   document.querySelectorAll("[data-admin-section]").forEach((button) => button.addEventListener("click", () => {
     state.adminSection = button.dataset.adminSection;
     renderAdmin();
+  }));
+  document.querySelectorAll("[data-sort-people]").forEach((button) => button.addEventListener("click", () => {
+    const key = button.dataset.sortPeople;
+    state.peopleSort = {
+      key,
+      direction: state.peopleSort.key === key && state.peopleSort.direction === "asc" ? "desc" : "asc",
+    };
+    renderPeople();
   }));
   document.querySelector("#add-person")?.addEventListener("click", () => showPersonEditor());
   document.querySelectorAll("[data-edit-person]").forEach((button) => button.addEventListener("click", () => showPersonEditor(Number(button.dataset.editPerson))));

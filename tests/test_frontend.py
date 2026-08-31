@@ -53,6 +53,9 @@ def test_admin_has_people_management_and_day_week_navigation(seeded):
     assert 'name="category"' in javascript
     assert "Sin categoría" in javascript
     assert 'class="table-category"' in javascript
+    assert 'peopleSort: { key: "category", direction: "asc" }' in javascript
+    for field in ("name", "category", "sites", "access", "active"):
+        assert f'peopleSortHeader("{field}"' in javascript
     assert 'data-view="day"' in javascript
     assert 'data-view="week"' in javascript
 

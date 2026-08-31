@@ -118,10 +118,12 @@ h1, h2, h3, p { margin-top: 0; }
 .record-buttons button { border: 1px solid #b8cff1; border-radius: 7px; background: #fff; color: var(--blue); padding: 6px 9px; font-size: 12px; font-weight: 700; }
 
 .people-table { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden; }
-.people-head, .people-row { display: grid; grid-template-columns: minmax(170px, 1.1fr) minmax(220px, 1.4fr) minmax(180px, 1.1fr) 120px 76px; align-items: center; gap: 18px; padding: 15px 18px; }
+.people-head, .people-row { display: grid; grid-template-columns: minmax(150px, 1fr) minmax(130px, .8fr) minmax(180px, 1.1fr) minmax(150px, 1fr) 105px 76px; align-items: center; gap: 18px; padding: 15px 18px; }
 .people-head { background: #f8f9fb; color: #3a4353; font-size: 13px; font-weight: 750; }
+.people-sort { border: 0; background: transparent; color: inherit; padding: 0; font: inherit; text-align: left; }
+.people-sort span { margin-left: 4px; color: #8b96a8; }
+.people-sort.active { color: var(--blue); }
 .people-row { min-height: 76px; border-top: 1px solid var(--line); }
-.people-category { border-top: 1px solid var(--line); padding: 10px 18px; background: #f3f6fa; color: var(--blue); font-size: 13px; font-weight: 800; }
 .people-row > span { min-width: 0; }
 .people-row strong { display: block; }
 .people-row small { display: block; margin-top: 3px; color: var(--muted); }
@@ -213,8 +215,10 @@ h1, h2, h3, p { margin-top: 0; }
   .people-head { display: none; }
   .people-table { border: 0; background: transparent; overflow: visible; }
   .people-row { grid-template-columns: 1fr auto; gap: 11px 16px; margin-bottom: 12px; border: 1px solid var(--line); border-radius: 12px; padding: 16px; background: #fff; }
-  .people-row > span:nth-child(1), .people-row > span:nth-child(2), .people-row > span:nth-child(3) { grid-column: 1 / -1; }
-  .people-row > span:nth-child(2)::before { content: "Obras: "; color: var(--muted); font-size: 13px; font-weight: 700; }
+  .person-category-cell, .person-sites, .person-access { grid-column: 1 / -1; }
+  .person-category-cell::before { content: "Categoría: "; color: var(--muted); font-size: 13px; font-weight: 700; }
+  .person-sites::before { content: "Obras: "; color: var(--muted); font-size: 13px; font-weight: 700; }
+  .person-access::before { content: "Acceso: "; color: var(--muted); font-size: 13px; font-weight: 700; }
   .sites-head { display: none; }
   .sites-table { border: 0; background: transparent; overflow: visible; }
   .sites-row { grid-template-columns: 1fr auto; gap: 8px 14px; margin-bottom: 12px; border: 1px solid var(--line); border-radius: 12px; padding: 16px; background: #fff; }
