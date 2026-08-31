@@ -15,6 +15,7 @@ from hobritas_api.models import UserRole
 Username = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=80)]
 Password = Annotated[str, StringConstraints(min_length=8, max_length=1024)]
 PersonName = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=160)]
+WorkerCategory = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=160)]
 SiteName = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=160)]
 
 
@@ -64,6 +65,7 @@ class WorkerRead(BaseModel):
 
     id: int
     name: str
+    category: str | None
 
 
 class AdminSiteRead(SiteRead):
@@ -77,6 +79,7 @@ class AppSettingsRead(BaseModel):
 
 class PersonCreate(BaseModel):
     name: PersonName
+    category: WorkerCategory | None = None
     active: bool = True
     site_ids: list[int] = Field(default_factory=list)
     access_enabled: bool = False
@@ -93,6 +96,7 @@ class PersonCreate(BaseModel):
 
 class PersonUpdate(BaseModel):
     name: PersonName | None = None
+    category: WorkerCategory | None = None
     active: bool | None = None
     site_ids: list[int] | None = None
     access_enabled: bool | None = None
@@ -104,6 +108,7 @@ class PersonUpdate(BaseModel):
 class PersonRead(BaseModel):
     id: int
     name: str
+    category: str | None
     active: bool
     site_ids: list[int]
     access_enabled: bool

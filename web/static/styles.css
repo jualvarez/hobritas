@@ -73,6 +73,9 @@ h1, h2, h3, p { margin-top: 0; }
 .metric-button:hover { border-color: var(--amber); }
 
 .person-list { display: grid; gap: 14px; }
+.worker-category { display: grid; gap: 12px; }
+.worker-category h2 { margin: 14px 0 0; color: var(--muted); font-size: 15px; letter-spacing: .02em; }
+.worker-category:first-child h2 { margin-top: 0; }
 .person-card { position: relative; border: 1px solid var(--line); border-radius: 13px; background: var(--surface); overflow: hidden; }
 .person-card.working { border-color: #83cfa4; box-shadow: inset 5px 0 0 var(--green); }
 .person-main { width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 18px; border: 0; background: transparent; color: inherit; padding: 20px; text-align: left; }
@@ -102,6 +105,7 @@ h1, h2, h3, p { margin-top: 0; }
 .table-head { background: #f8f9fb; color: #3a4353; font-size: 13px; font-weight: 750; }
 .group-row { width: 100%; border: 0; border-top: 1px solid var(--line); background: #fff; color: inherit; text-align: left; }
 .group-row:first-of-type { border-top: 0; }
+.table-category { border-top: 1px solid var(--line); padding: 10px 18px; background: #f3f6fa; color: var(--blue); font-size: 13px; font-weight: 800; }
 .group-name { font-weight: 800; }
 .chevron { display: inline-block; width: 20px; color: var(--blue); transition: transform .16s; }
 .group-row.open .chevron { transform: rotate(90deg); }
@@ -117,6 +121,7 @@ h1, h2, h3, p { margin-top: 0; }
 .people-head, .people-row { display: grid; grid-template-columns: minmax(170px, 1.1fr) minmax(220px, 1.4fr) minmax(180px, 1.1fr) 120px 76px; align-items: center; gap: 18px; padding: 15px 18px; }
 .people-head { background: #f8f9fb; color: #3a4353; font-size: 13px; font-weight: 750; }
 .people-row { min-height: 76px; border-top: 1px solid var(--line); }
+.people-category { border-top: 1px solid var(--line); padding: 10px 18px; background: #f3f6fa; color: var(--blue); font-size: 13px; font-weight: 800; }
 .people-row > span { min-width: 0; }
 .people-row strong { display: block; }
 .people-row small { display: block; margin-top: 3px; color: var(--muted); }

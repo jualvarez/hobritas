@@ -142,6 +142,7 @@ function formatWorkdays(minutes) {
 
 function siteName(id) { return state.sites.find((site) => site.id === id)?.name || "Obra"; }
 function workerName(id) { return state.workers.find((worker) => worker.id === id)?.name || "Trabajador"; }
+function workerCategory(worker) { return worker.category || "Sin categoría"; }
 
 function currentRange() {
   const start = state.view === "day" ? state.date : sundayOf(state.date);
@@ -279,20 +280,24 @@ function foremanDay() {
   const active = state.records.filter((record) => !record.exit_at).length;
   const total = totalMinutes(state.records);
   const alerts = visibleAlerts();
-  const cards = state.workers.map((worker) => {
-    const records = state.records.filter((record) => record.worker_id === worker.id);
-    const current = records.find((record) => !record.exit_at);
-    const segments = records.length
-      ? records.map((record) => `<li>${displayTime(record.entry_at)} — ${displayTime(record.exit_at)}</li>`).join("")
-      : "<li>Sin registros</li>";
-    const action = current ? "Tocar para registrar la salida" : records.length ? "Tocar para una nueva entrada" : "Tocar para registrar la entrada";
-    return `<article class="person-card ${current ? "working" : ""}">
-      <button class="secondary edit-person" data-edit-worker="${worker.id}" aria-label="Editar registros">Editar</button>
-      <button class="person-main" data-tap-worker="${worker.id}">
-        <span><span class="person-name">${html(worker.name)} ${current ? '<span class="status">Trabajando</span>' : ""}</span><ul class="records-inline">${segments}</ul><span class="card-action">${action}</span></span>
-        <span class="card-total">Total: ${formatTime(totalMinutes(records))}</span>
-      </button>
-    </article>`;
+  const groupedWorkers = Map.groupBy(state.workers, workerCategory);
+  const cards = [...groupedWorkers].map(([category, workers]) => {
+    const items = workers.map((worker) => {
+      const records = state.records.filter((record) => record.worker_id === worker.id);
+      const current = records.find((record) => !record.exit_at);
+      const segments = records.length
+        ? records.map((record) => `<li>${displayTime(record.entry_at)} — ${displayTime(record.exit_at)}</li>`).join("")
+        : "<li>Sin registros</li>";
+      const action = current ? "Tocar para registrar la salida" : records.length ? "Tocar para una nueva entrada" : "Tocar para registrar la entrada";
+      return `<article class="person-card ${current ? "working" : ""}">
+        <button class="secondary edit-person" data-edit-worker="${worker.id}" aria-label="Editar registros">Editar</button>
+        <button class="person-main" data-tap-worker="${worker.id}">
+          <span><span class="person-name">${html(worker.name)} ${current ? '<span class="status">Trabajando</span>' : ""}</span><ul class="records-inline">${segments}</ul><span class="card-action">${action}</span></span>
+          <span class="card-total">Total: ${formatTime(totalMinutes(records))}</span>
+        </button>
+      </article>`;
+    }).join("");
+    return `<section class="worker-category"><h2>${html(category)}</h2>${items}</section>`;
   }).join("");
   return `<div class="metrics"><div class="metric"><strong>${active}</strong><span>trabajando</span></div><div class="metric"><strong>${formatTime(total)}</strong><span>tiempo registrado</span></div>${alertMetric(alerts)}</div>
     <section class="person-list">${cards || '<div class="empty">No hay trabajadores asignados a esta obra.</div>'}</section>
@@ -321,12 +326,16 @@ function groupData(groupBy) {
 function groupedTable(groupBy) {
   const groups = groupData(groupBy);
   const other = groupBy === "worker" ? "Obras" : "Trabajadores";
+  let previousCategory = null;
   const rows = groups.map((group) => {
     const key = `${groupBy}-${group.id}`;
     const open = state.openGroup === key;
+    const category = workerCategory(group);
+    const categoryHeader = groupBy === "worker" && category !== previousCategory ? `<div class="table-category">${html(category)}</div>` : "";
+    previousCategory = category;
     const names = group.details.map((detail) => detail.name).join(", ");
     const details = group.details.map((detail) => `<div class="detail-line"><span class="detail-indent" aria-hidden="true"></span><strong class="detail-name">${html(detail.name)}</strong><span class="detail-time">${formatTime(totalMinutes(detail.records))}</span><span class="detail-days">${formatWorkdays(totalMinutes(detail.records))}</span><span class="record-buttons">${detail.records.map((record) => `<button data-edit-record="${record.id}">${displayTime(record.entry_at)} — ${displayTime(record.exit_at)}</button>`).join("")}</span></div>`).join("");
-    return `<button class="group-row ${open ? "open" : ""}" data-group="${key}"><span class="group-name"><span class="chevron">›</span>${html(group.name)}</span><span>${html(names)}</span><span>${formatTime(group.minutes)}</span><span>${formatWorkdays(group.minutes)}</span><span>${group.alerts ? `<span class="warning-pill">${group.alerts} ${group.alerts === 1 ? "alerta" : "alertas"}</span>` : "—"}</span></button>${open ? `<div class="group-details">${details}</div>` : ""}`;
+    return `${categoryHeader}<button class="group-row ${open ? "open" : ""}" data-group="${key}"><span class="group-name"><span class="chevron">›</span>${html(group.name)}</span><span>${html(names)}</span><span>${formatTime(group.minutes)}</span><span>${formatWorkdays(group.minutes)}</span><span>${group.alerts ? `<span class="warning-pill">${group.alerts} ${group.alerts === 1 ? "alerta" : "alertas"}</span>` : "—"}</span></button>${open ? `<div class="group-details">${details}</div>` : ""}`;
   }).join("");
   return `<div class="data-table"><div class="table-head"><span>${groupBy === "worker" ? "Trabajador" : "Obra"}</span><span>${other}</span><span>Tiempo</span><span>Jornales</span><span>Alertas</span></div>${rows || '<div class="empty">No hay registros en este período.</div>'}</div>`;
 }
@@ -348,10 +357,14 @@ function adminNavigation() {
 }
 
 function renderPeople() {
-  const rows = state.people.map((person) => {
-    const sites = person.site_ids.map(siteName).join(", ") || "Sin obra";
-    const access = person.access_enabled ? `${person.role === "admin" ? "Administrador" : "Encargado"}<br><span>${html(person.username)}</span>` : "Sin acceso";
-    return `<div class="people-row"><strong>${html(person.name)}</strong><span>${html(sites)}</span><span>${access}</span><span class="person-status ${person.active ? "active" : "inactive"}">${person.active ? "Activo" : "Inactivo"}</span><button class="secondary" data-edit-person="${person.id}">Editar</button></div>`;
+  const groupedPeople = Map.groupBy(state.people, workerCategory);
+  const rows = [...groupedPeople].map(([category, people]) => {
+    const items = people.map((person) => {
+      const sites = person.site_ids.map(siteName).join(", ") || "Sin obra";
+      const access = person.access_enabled ? `${person.role === "admin" ? "Administrador" : "Encargado"}<br><span>${html(person.username)}</span>` : "Sin acceso";
+      return `<div class="people-row"><strong>${html(person.name)}</strong><span>${html(sites)}</span><span>${access}</span><span class="person-status ${person.active ? "active" : "inactive"}">${person.active ? "Activo" : "Inactivo"}</span><button class="secondary" data-edit-person="${person.id}">Editar</button></div>`;
+    }).join("");
+    return `<div class="people-category">${html(category)}</div>${items}`;
   }).join("");
   root.innerHTML = `${header()}<main class="page">${adminNavigation()}<div class="page-title-row"><div><h1>Trabajadores</h1><p class="muted">Asignaciones y acceso al sistema</p></div><button class="primary" id="add-person">Agregar trabajador</button></div><section class="people-table"><div class="people-head"><span>Trabajador</span><span>Obras</span><span>Acceso</span><span>Estado</span><span></span></div>${rows || '<div class="empty">No se agregaron trabajadores.</div>'}</section></main>`;
   bindCommon();
@@ -466,6 +479,7 @@ function showPersonEditor(personId = null) {
   const siteOptions = state.sites.map((site) => `<label class="site-option"><input type="checkbox" name="site_ids" value="${site.id}" ${person?.site_ids.includes(site.id) ? "checked" : ""}> ${html(site.name)}</label>`).join("");
   modal(`<div class="modal-header"><h2>${person ? "Editar trabajador" : "Agregar trabajador"}</h2><button class="close" data-close-modal aria-label="Cerrar">×</button></div><form class="modal-body" id="person-form">
     <div class="field"><label for="person-name">Nombre</label><input id="person-name" name="name" value="${html(person?.name || "")}" required></div>
+    <div class="field"><label for="person-category">Categoría</label><input id="person-category" name="category" value="${html(person?.category || "")}" maxlength="160" placeholder="Ej.: 01-Jefe"></div>
     <fieldset class="option-group"><legend>Obras asignadas</legend><div class="site-options">${siteOptions || '<span class="muted">No hay obras disponibles.</span>'}</div></fieldset>
     <label class="switch-row"><span><strong>Acceso al sistema</strong><small>El usuario, el rol y la contraseña son opcionales.</small></span><input id="access-enabled" name="access_enabled" type="checkbox" ${person?.access_enabled ? "checked" : ""}></label>
     <div id="account-fields">
@@ -494,6 +508,7 @@ function showPersonEditor(personId = null) {
     const accessEnabled = accessToggle.checked;
     const payload = {
       name: data.get("name"),
+      category: data.get("category") || null,
       active: data.has("active"),
       site_ids: data.getAll("site_ids").map(Number),
       access_enabled: accessEnabled,

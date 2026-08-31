@@ -50,6 +50,9 @@ def test_admin_has_people_management_and_day_week_navigation(seeded):
     assert "Agregar trabajador" in javascript
     assert "Nueva contraseña (opcional)" in javascript
     assert "Trabajador activo" in javascript
+    assert 'name="category"' in javascript
+    assert "Sin categoría" in javascript
+    assert 'class="table-category"' in javascript
     assert 'data-view="day"' in javascript
     assert 'data-view="week"' in javascript
 

@@ -44,7 +44,7 @@ def test_admin_can_create_rename_and_manage_site_people(seeded):
     assigned = client.post(f"/api/v1/admin/sites/{site_id}/people/{ids['worker_north']}")
     assert assigned.status_code == 200
     assert assigned.json()["people"] == [
-        {"id": ids["worker_north"], "name": "Worker One"}
+        {"id": ids["worker_north"], "name": "Worker One", "category": None}
     ]
 
     renamed = client.patch(f"/api/v1/admin/sites/{site_id}", json={"name": "Downtown Site"})

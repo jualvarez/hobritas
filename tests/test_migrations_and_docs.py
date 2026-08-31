@@ -22,7 +22,7 @@ def test_initial_migration_creates_the_schema(tmp_path):
         "workers",
     } <= tables
     columns = {column["name"] for column in inspect(create_engine(database_url)).get_columns("workers")}
-    assert {"user_id", "access_enabled"} <= columns
+    assert {"user_id", "access_enabled", "category"} <= columns
 
 
 def test_openapi_exposes_versioned_agent_endpoints(seeded):

@@ -68,6 +68,7 @@ class Worker(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(160), index=True)
+    category: Mapped[str | None] = mapped_column(String(160), nullable=True, index=True)
     active: Mapped[bool] = mapped_column(default=True)
     user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), unique=True, nullable=True)
     access_enabled: Mapped[bool] = mapped_column(default=False)

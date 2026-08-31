@@ -124,6 +124,7 @@ def serialize_person(worker: Worker) -> PersonRead:
     return PersonRead(
         id=worker.id,
         name=worker.name,
+        category=worker.category,
         active=worker.active,
         site_ids=sorted(site.id for site in worker.sites),
         access_enabled=worker.access_enabled,
@@ -159,7 +160,14 @@ def get_admin_site(db: Session, site_id: int) -> Site:
 
 
 def serialize_admin_site(site: Site) -> AdminSiteRead:
-    people = [worker for worker in sorted(site.workers, key=lambda item: item.id) if worker.active]
+    people = [
+        worker
+        for worker in sorted(
+            site.workers,
+            key=lambda item: ((item.category or "\uffff").casefold(), item.name.casefold(), item.id),
+        )
+        if worker.active
+    ]
     return AdminSiteRead(id=site.id, name=site.name, people=people)
 
 
@@ -231,7 +239,9 @@ def app_settings(request: Request, _user: User = Depends(get_current_user)):
 
 @router.get("/admin/people", response_model=list[PersonRead], tags=["admin"])
 def list_people(db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
-    workers = list(db.scalars(select(Worker).order_by(Worker.id)))
+    workers = list(
+        db.scalars(select(Worker).order_by(Worker.category.asc().nullslast(), Worker.name, Worker.id))
+    )
     return [serialize_person(worker) for worker in workers]
 
 
@@ -243,6 +253,7 @@ def create_person(
 ):
     worker = Worker(
         name=payload.name.strip(),
+        category=payload.category,
         active=payload.active,
         access_enabled=payload.access_enabled,
     )
@@ -277,6 +288,8 @@ def update_person(
         worker.name = (changes["name"] or "").strip()
         if not worker.name:
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="El nombre es obligatorio")
+    if "category" in changes:
+        worker.category = changes["category"]
     if "site_ids" in changes:
         worker.sites = resolve_sites(db, changes["site_ids"] or [])
     if "active" in changes:
@@ -467,7 +480,11 @@ def list_workers(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    query = select(Worker).where(Worker.active.is_(True)).order_by(Worker.id)
+    query = (
+        select(Worker)
+        .where(Worker.active.is_(True))
+        .order_by(Worker.category.asc().nullslast(), Worker.name, Worker.id)
+    )
     allowed_sites = user_site_ids(user)
     if allowed_sites is not None:
         if site_id is not None and site_id not in allowed_sites:
