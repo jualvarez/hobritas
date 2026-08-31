@@ -41,6 +41,28 @@ def test_admin_can_manage_person_with_optional_access_and_multiple_sites(seeded)
     assert {site["id"] for site in client.get("/api/v1/sites").json()} == {ids["north"], ids["south"]}
 
 
+def test_people_keep_the_order_in_which_they_were_created(seeded):
+    client, _, ids, _ = seeded
+    login(client, "admin_demo", "admin-pass")
+
+    first = client.post(
+        "/api/v1/admin/people",
+        json={"name": "Zeta", "site_ids": [ids["north"]], "access_enabled": False},
+    ).json()
+    second = client.post(
+        "/api/v1/admin/people",
+        json={"name": "Alpha", "site_ids": [ids["north"]], "access_enabled": False},
+    ).json()
+
+    people = client.get("/api/v1/admin/people").json()
+    workers = client.get("/api/v1/workers", params={"site_id": ids["north"]}).json()
+    north = next(site for site in client.get("/api/v1/admin/sites").json() if site["id"] == ids["north"])
+
+    assert [person["id"] for person in people][-2:] == [first["id"], second["id"]]
+    assert [worker["id"] for worker in workers][-2:] == [first["id"], second["id"]]
+    assert [person["id"] for person in north["people"]][-2:] == [first["id"], second["id"]]
+
+
 def test_inactive_person_cannot_log_in_and_foreman_cannot_manage_people(seeded):
     client, _, ids, _ = seeded
     login(client, "admin_demo", "admin-pass")

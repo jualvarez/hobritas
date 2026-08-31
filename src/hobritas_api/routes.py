@@ -159,7 +159,7 @@ def get_admin_site(db: Session, site_id: int) -> Site:
 
 
 def serialize_admin_site(site: Site) -> AdminSiteRead:
-    people = [worker for worker in sorted(site.workers, key=lambda item: (item.name, item.id)) if worker.active]
+    people = [worker for worker in sorted(site.workers, key=lambda item: item.id) if worker.active]
     return AdminSiteRead(id=site.id, name=site.name, people=people)
 
 
@@ -231,7 +231,7 @@ def app_settings(request: Request, _user: User = Depends(get_current_user)):
 
 @router.get("/admin/people", response_model=list[PersonRead], tags=["admin"])
 def list_people(db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
-    workers = list(db.scalars(select(Worker).order_by(Worker.name, Worker.id)))
+    workers = list(db.scalars(select(Worker).order_by(Worker.id)))
     return [serialize_person(worker) for worker in workers]
 
 
@@ -467,7 +467,7 @@ def list_workers(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    query = select(Worker).where(Worker.active.is_(True)).order_by(Worker.name)
+    query = select(Worker).where(Worker.active.is_(True)).order_by(Worker.id)
     allowed_sites = user_site_ids(user)
     if allowed_sites is not None:
         if site_id is not None and site_id not in allowed_sites:
